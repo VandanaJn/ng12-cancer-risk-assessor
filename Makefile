@@ -35,7 +35,7 @@ endif
 # ------------------------
 test:
 	@echo "Running tests with coverage..."
-	"$(PYTHON)" -m pytest tests/unit --maxfail=1 --disable-warnings -q 
+	"$(PYTHON)" -m pytest tests --maxfail=1 --disable-warnings -q 
 
 # ------------------------
 # Remove virtual environment

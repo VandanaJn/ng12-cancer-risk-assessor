@@ -4,8 +4,8 @@ from vertexai.agent_engines import AdkApp
 import vertexai
 from app.config import GCP_PROJECT, GCP_REGION
 import os
-
-from app.tools.medical_guideline_tool import search_medical_guidelines
+from app.tools.nice_guideline_tool import search_nice_ng12_guidelines
+from app.tools.patient_data_tool import get_patient_data
 def init_vertexai():
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
     os.environ["GOOGLE_CLOUD_PROJECT"] = GCP_PROJECT
@@ -23,8 +23,40 @@ init_vertexai()
 root_agent = Agent(
     name="MedicalHelper",
     model="gemini-2.5-flash-lite",
-    instruction="You are a medical assistant. Use the provided tools to find referral criteria.",
-    tools=[search_medical_guidelines] # Your ChromaDB function
+    instruction="""
+You are a clinical decision support agent.
+
+You MUST:
+- Use get_patient_data to retrieve patient info
+- Use search_nice_ng12_guidelines to find relevant NICE NG12 guideline sections
+- Use NICE NG12 guidelines only, no other sources
+- Assess cancer risk based on age, symptoms, and duration
+- Decide between:
+  - urgent referral
+  - urgent investigation
+  - no urgent action
+- Cite the guideline text verbatim
+
+OUTPUT RULES (STRICT):
+- Respond with ONLY a single valid JSON object
+- Do NOT include any text outside the JSON
+- Do NOT add explanations, apologies, or validation messages
+- Do NOT mention formatting errors
+
+JSON FORMAT (EXACT):
+
+{
+  "recommendation": "<urgent referral | urgent investigation | no urgent action>",
+  "justification": "<verbatim NICE NG12 text>",
+  "references": [
+    {
+      "page": <number>,
+      "chunk_id": "<string>"
+    }
+  ]
+}
+""",
+    tools=[search_nice_ng12_guidelines, get_patient_data] 
 )
 
 # 2. Define the Body (The App)

@@ -2,7 +2,6 @@ import chromadb
 from google.adk.agents import Agent
 from vertexai.agent_engines import AdkApp
 
-import vertexai
 from app.config import VECTOR_STORE_DIR, GCP_REGION, EMBEDDING_MODEL_NAME
 import os
 from vertexai.preview.language_models import TextEmbeddingModel
@@ -11,7 +10,7 @@ from app.config import VECTOR_STORE_DIR, EMBEDDING_MODEL_NAME
 
 embedding_model = TextEmbeddingModel.from_pretrained(EMBEDDING_MODEL_NAME)
 
-def search_medical_guidelines(query: str) -> str:
+def search_nice_ng12_guidelines(query: str) -> str:
     """
     Searches the local NG12 vector store for relevant medical referral criteria.
     Uses the SAME Vertex embedding model as ingestion.
