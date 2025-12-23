@@ -12,8 +12,15 @@ embedding_model = TextEmbeddingModel.from_pretrained(EMBEDDING_MODEL_NAME)
 
 def search_nice_ng12_guidelines(query: str) -> str:
     """
-    Searches the local NG12 vector store for relevant medical referral criteria.
-    Uses the SAME Vertex embedding model as ingestion.
+    Search the local NICE NG12 vector database for relevant guideline excerpts.
+
+    Args:
+        query (str): A natural-language query describing patient symptoms
+            or clinical criteria (e.g., "unexplained hemoptysis in smoker").
+
+    Returns:
+        str: Concatenated NG12 guideline excerpts suitable for citation-based
+        clinical reasoning by the agent.
     """
 
     # 1. Embed the query using Vertex AI

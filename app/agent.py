@@ -6,6 +6,9 @@ from app.config import GCP_PROJECT, GCP_REGION
 import os
 from app.tools.nice_guideline_tool import search_nice_ng12_guidelines
 from app.tools.patient_data_tool import get_patient_data
+from app.prompts import load_system_prompt
+system_prompt = load_system_prompt()
+
 def init_vertexai():
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
     os.environ["GOOGLE_CLOUD_PROJECT"] = GCP_PROJECT

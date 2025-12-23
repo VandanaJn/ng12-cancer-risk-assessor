@@ -14,6 +14,22 @@ def load_patients() -> list[dict]:
 
 
 def get_patient_data(patient_id: str) -> dict:
+    """
+    Retrieve structured patient data for a given patient ID.
+
+    Args:
+        patient_id (str): The unique patient identifier (e.g., "PT-101").
+
+    Returns:
+        dict:
+            - If found: A dictionary containing the patient's clinical data
+              (age, gender, smoking history, symptoms, symptom duration).
+            - If not found: A dictionary with at least:
+              {
+                  "patient_id": "<requested id>",
+                  "found": False
+              }
+    """
     patients = load_patients()
 
     for p in patients:
