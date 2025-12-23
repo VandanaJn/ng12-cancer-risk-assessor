@@ -205,3 +205,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+/vector_store/chroma/*
+/your_vector_store/*
+/app/.adk/session.db

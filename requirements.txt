@@ -1,0 +1,8 @@
+google-cloud-aiplatform
+google-adk
+fastapi
+uvicorn
+chromadb
+pypdf
+python-dotenv
+tiktoken
