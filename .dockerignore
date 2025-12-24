@@ -1,0 +1,10 @@
+.venv
+__pycache__
+*.pyc
+.env
+.git
+.gitignore
+node_modules
+vector_store
+data
+tests
