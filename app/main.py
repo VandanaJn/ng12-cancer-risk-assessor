@@ -1,5 +1,6 @@
+
 from fastapi import FastAPI
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
 from pydantic import BaseModel
 from app.ng12_agent import ng12_app
 from google.genai import types
@@ -7,6 +8,10 @@ from app.assess_agent import assess_app
 from google.adk.sessions import InMemorySessionService
 from google.adk.runners import Runner
 import logging
+import json
+import json
+
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 if not logger.handlers:
@@ -34,6 +39,13 @@ class KnowledgeRequest(BaseModel):
     session_id: str
     top_k: int = 5
 
+BASE_DIR = Path(__file__).resolve().parent
+UI_DIR = BASE_DIR / "ui"
+
+@app.get("/")
+def home():
+    return FileResponse(UI_DIR / "index.html")
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -57,8 +69,8 @@ async def assess_patient(req: AssessmentRequest):
 
     return StreamingResponse(generate_response(), media_type="application/json")
 
-@app.post("/knowledge_chat")
-async def knowledge_chat(req: KnowledgeRequest):
+@app.post("/chat")
+async def chat(req: KnowledgeRequest):
     session_id = str(req.session_id)
     user_id = str(req.session_id) 
     
@@ -79,23 +91,28 @@ async def knowledge_chat(req: KnowledgeRequest):
         parts=[types.Part.from_text(text=f"answer this: {req.message} using top_n: {req.top_k}")]
     )
 
-    async def event_generator():
-        try:
-            async for event in runner.run_async(
-                session_id=session.id,
-                user_id=user_id,
-                new_message=formatted_message,
-            ):
-                if event.content and event.content.parts:
-                    for part in event.content.parts:
-                        if part.text:
-                            yield part.text
-                
-                    
-        except Exception as e:
-            logger.exception("ERROR in Runner: %s", e)
-            yield f"Internal Error"
+    text_parts = []
+    try:
+        async for event in runner.run_async(
+            session_id=session.id,
+            user_id=user_id,
+            new_message=formatted_message,
+        ):
+            if event.content and event.content.parts:
+                for part in event.content.parts:
+                    if part.text:
+                        text_parts.append(part.text)
+    except Exception as e:
+        logger.exception("ERROR in Runner: %s", e)
+        return StreamingResponse(
+            json.dumps({"error": "Internal Error"}),
+            media_type="application/json"
+        )
 
-    return StreamingResponse(event_generator(), media_type="text/plain")
+    response_content = "".join(text_parts)
+    return StreamingResponse(
+        json.dumps({"content": response_content}),
+        media_type="application/json"
+    )
 
 

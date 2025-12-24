@@ -27,6 +27,7 @@ def init_vertexai():
 init_vertexai()
 
 class AssessmentResponse(BaseModel):
+    patient_id: str
     recommendation: str
     justification: str
     references: list
