@@ -222,8 +222,14 @@ docker build -t ng12-assessor .
 Run:
 
 ```bash
-docker run -p 8000:8000 ng12-assessor
+ docker run -p 8000:8000 `
+  -e GOOGLE_GENAI_USE_VERTEXAI=True `
+  -e GOOGLE_CLOUD_PROJECT="google-project-id" `
+  -e GOOGLE_CLOUD_LOCATION=us-central1 `
+  -v "$env:APPDATA\gcloud:/root/.config/gcloud" `
+  ng12-assessor
 ```
+
 
 ---
 

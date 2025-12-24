@@ -20,6 +20,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ---- Copy app code ----
 COPY app ./app
 COPY ingestion ./ingestion
+COPY data /app/data
+COPY vector_store /app/vector_store
 
 # ---- Expose port ----
 EXPOSE 8000
