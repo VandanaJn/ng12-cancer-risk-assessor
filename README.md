@@ -188,6 +188,28 @@ The UI supports:
 
 ---
 
+### POST `/chat`
+
+**Request**:
+
+```json
+{
+  "message": "Find guidance about persistent cough and when to refer",
+  "session_id": "session-123",
+  "top_k": 5
+}
+```
+
+**Response** (streamed JSON):
+
+```json
+{
+  "content": "<assistant reply with guideline-cited text and references>"
+}
+```
+
+---
+
 ## 🧾 Prompts
 
 All system prompts live in:
