@@ -10,17 +10,25 @@ from app.config import VECTOR_STORE_DIR, EMBEDDING_MODEL_NAME
 
 embedding_model = TextEmbeddingModel.from_pretrained(EMBEDDING_MODEL_NAME)
 
-def search_nice_ng12_guidelines(query: str) -> str:
+def search_nice_ng12_guidelines(query: str, top_n: int = 5) -> dict:
     """
     Search the local NICE NG12 vector database for relevant guideline excerpts.
 
     Args:
         query (str): A natural-language query describing patient symptoms
             or clinical criteria (e.g., "unexplained hemoptysis in smoker").
+        top_n (int): Maximum number of results to return (default: 5).
 
     Returns:
-        str: Concatenated NG12 guideline excerpts suitable for citation-based
-        clinical reasoning by the agent.
+        dict: Structured result with "results" list containing {document, metadata}
+        pairs, or empty list if no matches found.
+        Example:
+        {
+            "results": [
+                {"document": "...", "metadata": {"page": 1, "source": "NG12 PDF", ...}},
+                ...
+            ]
+        }
     """
 
     # 1. Embed the query using Vertex AI
@@ -33,13 +41,21 @@ def search_nice_ng12_guidelines(query: str) -> str:
     # 3. Vector search
     results = collection.query(
         query_embeddings=[query_embedding],
-        n_results=3
+        n_results=top_n,
+        include=["documents", "metadatas"]
     )
 
-    # 4. Return top chunks as readable text
+    # 4. Return structured results with both documents and metadata
     documents = results.get("documents", [[]])[0]
+    metadatas = results.get("metadatas", [[]])[0]
 
     if not documents:
-        return "No relevant guideline sections found."
+        return {"results": []}
 
-    return "\n\n---\n\n".join(documents)
+    # Pair each document with its metadata
+    result_list = [
+        {"document": doc, "metadata": meta}
+        for doc, meta in zip(documents, metadatas)
+    ]
+
+    return {"results": result_list}

@@ -27,5 +27,5 @@ results = collection.query(
 for i, doc in enumerate(results['documents'][0]):
     metadata = results['metadatas'][0][i]
     print(f"\n--- Result {i+1} ---")
-    print(f"Page: {metadata['page']}, Chunk ID: {metadata['chunk_id']}")
+    print(f"Page: {metadata['page']}, Chunk ID: {metadata['chunk_id']}, Source: {metadata['source']}")
     print(f"Text excerpt: {doc[:300]}...")  # first 300 chars

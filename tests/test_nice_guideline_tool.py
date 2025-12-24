@@ -8,16 +8,17 @@ def make_fake_modules():
     chromadb = types.ModuleType("chromadb")
 
     class FakeCollection:
-        def __init__(self, docs=None):
+        def __init__(self, docs=None, metas=None):
             self._docs = docs or []
+            self._metas = metas or []
 
-        def query(self, query_embeddings=None, n_results=3):
-            return {"documents": [self._docs]}
+        def query(self, query_embeddings=None, n_results=3, include=None):
+            return {"documents": [self._docs], "metadatas": [self._metas]}
 
     class FakeClient:
-        def __init__(self, path=None, docs=None):
+        def __init__(self, path=None, docs=None, metas=None):
             self.path = path
-            self._collection = FakeCollection(docs)
+            self._collection = FakeCollection(docs, metas)
 
         def get_collection(self, name):
             return self._collection
@@ -68,15 +69,16 @@ def make_fake_modules():
     return chromadb, lm
 
 
-def test_search_returns_documents_when_found(monkeypatch):
+def test_search_returns_documents_and_metadata_when_found(monkeypatch):
     chromadb_mod, lm_mod = make_fake_modules()
 
-    # Prepare a client that will return docs
+    # Prepare a client that will return docs and metadata
     docs = ["Section A: refer if ...", "Section B: urgent ..."]
+    metas = [{"page": 1, "source": "NG12 PDF"}, {"page": 2, "source": "NG12 PDF"}]
 
-    # Monkeypatch the PersistentClient to return our client with docs
+    # Monkeypatch the PersistentClient to return our client with docs and metas
     def fake_client_factory(path=None):
-        return chromadb_mod._BaseClient(path=path, docs=docs)
+        return chromadb_mod._BaseClient(path=path, docs=docs, metas=metas)
 
     chromadb_mod.PersistentClient = fake_client_factory
 
@@ -86,16 +88,21 @@ def test_search_returns_documents_when_found(monkeypatch):
 
     res = ng.search_nice_ng12_guidelines("chest pain")
 
-    assert "Section A" in res
-    assert "Section B" in res
+    assert isinstance(res, dict)
+    assert "results" in res
+    assert len(res["results"]) == 2
+    assert res["results"][0]["document"] == "Section A: refer if ..."
+    assert res["results"][0]["metadata"]["page"] == 1
+    assert res["results"][1]["document"] == "Section B: urgent ..."
+    assert res["results"][1]["metadata"]["page"] == 2
 
 
-def test_search_returns_no_results_when_empty(monkeypatch):
+def test_search_returns_empty_results_when_no_matches(monkeypatch):
     chromadb_mod, lm_mod = make_fake_modules()
 
     # Empty docs
     def fake_client_factory(path=None):
-        return chromadb_mod._BaseClient(path=path, docs=[])
+        return chromadb_mod._BaseClient(path=path, docs=[], metas=[])
 
     chromadb_mod.PersistentClient = fake_client_factory
 
@@ -104,4 +111,5 @@ def test_search_returns_no_results_when_empty(monkeypatch):
 
     res = ng.search_nice_ng12_guidelines("nonexistent symptom")
 
-    assert res == "No relevant guideline sections found."
+    assert isinstance(res, dict)
+    assert res["results"] == []
