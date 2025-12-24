@@ -7,6 +7,4 @@ __pycache__
 .git
 .gitignore
 node_modules
-vector_store
-data
 tests

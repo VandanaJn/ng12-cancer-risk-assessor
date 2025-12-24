@@ -207,6 +207,12 @@ They are loaded dynamically using `prompts.py`, allowing:
 
 Docker is **not required** for local development.
 
+Run locally (create the `vector_store` before building the Docker image):
+
+```powershell
+python -m ingestion.ingest_ng12
+```
+
 Build image:
 
 ```bash
