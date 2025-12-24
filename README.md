@@ -150,6 +150,8 @@ Open in browser:
 http://127.0.0.1:8000/
 ```
 
+![UI sample](uisample.png)
+
 The UI supports:
 - Module 1: Patient-based assessment
 - Module 2: Guideline-grounded reasoning
