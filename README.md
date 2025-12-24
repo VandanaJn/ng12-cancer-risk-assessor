@@ -59,7 +59,7 @@ ng12-cancer-risk-assessor/
    - `ng12_agent`: retrieves relevant NG12 guideline sections
 
 3. **FastAPI**
-   - Exposes a single assessment endpoint
+   - Exposes assess and chat endpoints
    - Streams agent responses
 
 4. **UI**
