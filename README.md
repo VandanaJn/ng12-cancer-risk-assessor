@@ -244,6 +244,7 @@ MIT License. See `LICENSE`.
 ## 🧭 Next Steps (Optional)
 
 - Auth & audit logging
+- Add more guard rails
 - Enhance unit tests
 - Evaluation tests
 - UI improvements
