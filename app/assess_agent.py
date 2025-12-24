@@ -1,6 +1,5 @@
 from google.adk.agents import Agent
 from vertexai.agent_engines import AdkApp
-from google.adk.apps.app import App, EventsCompactionConfig
 import vertexai
 from app.config import GCP_PROJECT, GCP_REGION
 import os
@@ -10,8 +9,7 @@ from app.prompts import load_system_prompt
 from pydantic import BaseModel
 from google.adk.apps.app import App
 from google.adk.plugins.logging_plugin import LoggingPlugin
-from google.adk.sessions import InMemorySessionService
-from google.adk.runners import Runner
+
 
 
 assess_prompt = load_system_prompt("ASSESSMENT_AGENT")
@@ -22,7 +20,6 @@ def init_vertexai():
     os.environ["GOOGLE_CLOUD_LOCATION"] = GCP_REGION
 
     vertexai.init(project=GCP_PROJECT, location=GCP_REGION)
-    # Tell the ADK to use Vertex AI and provide the project details
 
 init_vertexai()
 

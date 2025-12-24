@@ -244,8 +244,9 @@ MIT License. See `LICENSE`.
 ## 🧭 Next Steps (Optional)
 
 - Auth & audit logging
+- Enhance unit tests
+- Evaluation tests
 - UI improvements
-- PDF ingestion pipeline
 - Deployment to Cloud Run
 
 ---
