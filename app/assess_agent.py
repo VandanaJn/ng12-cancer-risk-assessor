@@ -9,17 +9,11 @@ from app.prompts import load_system_prompt
 from pydantic import BaseModel
 from google.adk.apps.app import App
 from google.adk.plugins.logging_plugin import LoggingPlugin
+from app.vertexai_utils import init_vertexai
 
 
 
 assess_prompt = load_system_prompt("ASSESSMENT_AGENT")
-
-def init_vertexai():
-    os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
-    os.environ["GOOGLE_CLOUD_PROJECT"] = GCP_PROJECT
-    os.environ["GOOGLE_CLOUD_LOCATION"] = GCP_REGION
-
-    vertexai.init(project=GCP_PROJECT, location=GCP_REGION)
 
 init_vertexai()
 

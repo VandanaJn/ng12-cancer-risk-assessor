@@ -1,12 +1,15 @@
 import chromadb
+import logging
 from google.adk.agents import Agent
 from vertexai.agent_engines import AdkApp
 
 from app.config import VECTOR_STORE_DIR, GCP_REGION, EMBEDDING_MODEL_NAME
 import os
 from vertexai.preview.language_models import TextEmbeddingModel
-import chromadb
 from app.config import VECTOR_STORE_DIR, EMBEDDING_MODEL_NAME
+
+logger = logging.getLogger(__name__)
+
 
 embedding_model = TextEmbeddingModel.from_pretrained(EMBEDDING_MODEL_NAME)
 
@@ -31,31 +34,35 @@ def search_nice_ng12_guidelines(query: str, top_n: int = 5) -> dict:
         }
     """
 
-    # 1. Embed the query using Vertex AI
-    query_embedding = embedding_model.get_embeddings([query])[0].values
+    try:
+        # 1. Embed the query using Vertex AI
+        query_embedding = embedding_model.get_embeddings([query])[0].values
 
-    # 2. Load persistent ChromaDB
-    client = chromadb.PersistentClient(path=str(VECTOR_STORE_DIR))
-    collection = client.get_collection("ng12")
+        # 2. Load persistent ChromaDB
+        client = chromadb.PersistentClient(path=str(VECTOR_STORE_DIR))
+        collection = client.get_collection("ng12")
 
-    # 3. Vector search
-    results = collection.query(
-        query_embeddings=[query_embedding],
-        n_results=top_n,
-        include=["documents", "metadatas"]
-    )
+        # 3. Vector search
+        results = collection.query(
+            query_embeddings=[query_embedding],
+            n_results=top_n,
+            include=["documents", "metadatas"]
+        )
 
-    # 4. Return structured results with both documents and metadata
-    documents = results.get("documents", [[]])[0]
-    metadatas = results.get("metadatas", [[]])[0]
+        # 4. Return structured results with both documents and metadata
+        documents = results.get("documents", [[]])[0]
+        metadatas = results.get("metadatas", [[]])[0]
 
-    if not documents:
-        return {"results": []}
+        if not documents:
+            return {"results": []}
 
-    # Pair each document with its metadata
-    result_list = [
-        {"document": doc, "metadata": meta}
-        for doc, meta in zip(documents, metadatas)
-    ]
+        # Pair each document with its metadata
+        result_list = [
+            {"document": doc, "metadata": meta}
+            for doc, meta in zip(documents, metadatas)
+        ]
 
-    return {"results": result_list}
+        return {"results": result_list}
+    except Exception as e:
+        logger.exception("Error searching NG12 guidelines: %s", e)
+        return {"error": "error occured"}

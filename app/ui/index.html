@@ -55,11 +55,12 @@ async function search() {
   const res = await fetch("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: query, user_id: "user-123", session_id: sessionId })
+    body: JSON.stringify({ message: query, session_id: sessionId, top_k: 5 })
   });
 
   const data = await res.json();
-  document.getElementById("queryResult").innerText = data.content || "";
+  const output = (data && typeof data === "object") ? (data.content ?? JSON.stringify(data, null, 2)) : String(data);
+  document.getElementById("queryResult").innerText = output || "";
 }
 </script>
 </body>

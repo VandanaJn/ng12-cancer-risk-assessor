@@ -4,6 +4,7 @@ from pypdf import PdfReader
 import chromadb
 import tiktoken
 from app.config import DATA_DIR, VECTOR_STORE_DIR, GCP_PROJECT, GCP_REGION, EMBEDDING_MODEL_NAME
+from app.vertexai_utils import init_vertexai
 
 
 def chunk_text_tokens(text, max_tokens=1000, overlap_tokens=100):
@@ -55,9 +56,6 @@ def main():
 
     print("NG12 ingestion complete.")
 
-
-def init_vertexai():
-    vertexai.init(project=GCP_PROJECT, location=GCP_REGION)
 
 
 def load_and_chunk_pdf(pdf_path):

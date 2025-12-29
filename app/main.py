@@ -88,7 +88,7 @@ async def chat(req: KnowledgeRequest):
 
     formatted_message = types.Content(
         role="user", 
-        parts=[types.Part.from_text(text=f"answer this: {req.message} using top_n: {req.top_k}")]
+        parts=[types.Part.from_text(text=f"answer this: {req.message} using top_n: {req.top_k} for session_id: {session_id}")]
     )
 
     text_parts = []
@@ -110,9 +110,7 @@ async def chat(req: KnowledgeRequest):
         )
 
     response_content = "".join(text_parts)
-    return StreamingResponse(
-        json.dumps({"content": response_content}),
-        media_type="application/json"
-    )
+    return StreamingResponse(response_content, media_type="application/json")
+    
 
 
