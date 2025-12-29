@@ -111,6 +111,56 @@ async def chat(req: KnowledgeRequest):
 
     response_content = "".join(text_parts)
     return StreamingResponse(response_content, media_type="application/json")
+
+
+@app.get("/chat/{session_id}/history")
+async def get_chat_history(session_id: str):
+    """Return conversation history for the given session (best-effort)."""
+    user_id = str(session_id)
+    app_name = ng12_app.name
+    try:
+        session = await ng12_session_service.get_session(app_name=app_name, user_id=user_id, session_id=session_id)
+    except Exception as e:
+        logger.exception("Error fetching session %s: %s", session_id, e)
+        return {"error": "session not found or session service error"}
+
+    # Prefer the session events (ADK sessions store events)
+    try:
+        events = getattr(session, "events", None)
+        if events:
+            serialized = []
+            for ev in events:
+                try:
+                    if hasattr(ev, "to_dict"):
+                        ev_dict = ev.to_dict()
+                    else:
+                        ev_dict = ev.__dict__
+                except Exception:
+                    ev_dict = str(ev)
+                serialized.append(ev_dict)
+
+            return {"session_id": session_id, "events": serialized, "state": getattr(session, "state", {})}
+
+        # No events — return session state if available
+        return {"session_id": session_id, "state": getattr(session, "state", {})}
+    except Exception as e:
+        logger.exception("Unable to serialize session %s: %s", session_id, e)
+        return {"error": "unable to retrieve session history"}
+
+
+@app.delete("/chat/{session_id}")
+async def delete_chat_session(session_id: str):
+    """Clear stored history for the given session (best-effort)."""
+    user_id = str(session_id)
+    app_name = ng12_app.name
+    # Try known session-service deletion methods
+    try:
+        # Memory/session service supports deletion API
+        await ng12_session_service.delete_session(app_name=app_name, user_id=user_id, session_id=session_id)
+        return {"status": "deleted"}
+    except Exception as e:
+        logger.exception("Error deleting/clearing session %s: %s", session_id, e)
+        return {"error": "unable to delete session"}
     
 
 

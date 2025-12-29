@@ -72,7 +72,7 @@ ng12-cancer-risk-assessor/
 - Python **3.10+** (tested on 3.11/3.13)
 - Virtualenv recommended
 - Google GenAI API access (Gemini)
-
+- Create a gcp project and enable vertex AI, and add it to billing
 ---
 
 ## 🔐 Environment Variables
@@ -194,7 +194,7 @@ The UI supports:
 
 ```json
 {
-  "message": "Find guidance about persistent cough and when to refer",
+  "message": "One symptom of lung cancer",
   "session_id": "session-123",
   "top_k": 5
 }
@@ -204,8 +204,44 @@ The UI supports:
 
 ```json
 {
-  "content": "<assistant reply with guideline-cited text and references>"
-}
+  "session_id": "session-123",
+  "answer": "One symptom of lung cancer is hoarseness...",
+  "citations": [
+    {
+      "source": "NG12 PDF",
+      "page": 52,
+      "chunk_id": "ng12_0052_51",
+      "excerpt": "Hoarseness (persistent and unexplained) [1.8.1]"
+    }
+```
+
+---
+
+### GET `/chat/{session_id}/history`
+
+Returns conversation history and session state for the given `session_id`.
+
+**Response** (JSON):
+
+returns adk InMemorySessionService history for now, which has extra fields, can be improved further by selecting only relevant fields 
+
+
+---
+
+### DELETE `/chat/{session_id}`
+
+Deletes/clears stored session history for the given `session_id`.
+
+**Response** (JSON):
+
+```json
+{ "status": "deleted" }
+```
+
+If deletion fails, a JSON error is returned:
+
+```json
+{ "error": "unable to delete session" }
 ```
 
 ---
@@ -280,9 +316,9 @@ MIT License. See `LICENSE`.
 ## 🧭 Next Steps (Optional)
 
 - Auth & audit logging
-- Add more guard rails
+- Add more guardrails
 - Enhance unit tests
-- Evaluation tests
+- Add Evaluation tests
 - UI improvements
 - Deployment to Cloud Run
 
